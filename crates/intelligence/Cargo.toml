@@ -1,0 +1,17 @@
+[package]
+name = "archive-intelligence"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+archive-common = { path = "../common" }
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+anyhow.workspace = true
+async-trait = "0.1"
+
+# Optional: Add candle or rust-bert later for local inference
+# For now, we define the interfaces

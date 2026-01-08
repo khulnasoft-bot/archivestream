@@ -52,6 +52,11 @@ ArchiveStream/
 │   │   │   │   └── alert.rs               # Alert system (future)
 │   │   │   └── Cargo.toml
 │   │   │
+│   │   ├── intelligence/                  # ML/LLM Engine
+│   │   │   ├── src/
+│   │   │   │   └── lib.rs                 # Engine traits & Logic
+│   │   │   └── Cargo.toml
+│   │   │
 │   │   └── archive-api/                   # REST API server
 │   │       ├── src/
 │   │       │   ├── main.rs                # Axum router & handlers

@@ -6,6 +6,7 @@ members = [
     "crates/indexer",
     "crates/semantic",
     "crates/federation",
+    "crates/intelligence",
 ]
 resolver = "2"
 
