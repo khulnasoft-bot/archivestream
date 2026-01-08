@@ -35,7 +35,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center gap-6">
                     <a href="#" className="text-sm text-gray-400 hover:text-white transition-colors">Documentation</a>
-                    <a href="https://github.com/KhulnaSoft/ArchiveStream" className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 transition-all">
+                    <a href="https://github.com/ArchiveStream/ArchiveStream" className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 transition-all">
                         <Github size={18} />
                         <span className="text-sm font-medium">GitHub</span>
                     </a>

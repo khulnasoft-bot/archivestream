@@ -12,7 +12,7 @@ impl Fetcher {
     pub fn new() -> Self {
         Self {
             client: Client::builder()
-                .user_agent("ArchiveStream/0.1.0 (+https://github.com/KhulnaSoft/ArchiveStream)")
+                .user_agent("ArchiveStream/0.1.0 (+https://github.com/ArchiveStream/ArchiveStream)")
                 .build()
                 .unwrap(),
         }

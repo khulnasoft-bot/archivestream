@@ -15,7 +15,7 @@ version = "0.1.0"
 authors = ["ArchiveStream Contributors"]
 edition = "2021"
 license = "AGPL-3.0"
-repository = "https://github.com/KhulnaSoft/ArchiveStream"
+repository = "https://github.com/ArchiveStream/ArchiveStream"
 
 [workspace.dependencies]
 tokio = { version = "1.36", features = ["full"] }
