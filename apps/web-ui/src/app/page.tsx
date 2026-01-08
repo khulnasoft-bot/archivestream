@@ -1,6 +1,30 @@
+"use client";
+
+import { useState } from "react";
 import { Search, Globe, Clock, Shield, Github } from "lucide-react";
 
 export default function Home() {
+    const [searchUrl, setSearchUrl] = useState("");
+    const [results, setResults] = useState<any[]>([]);
+
+    const handleSearch = async () => {
+        if (searchUrl) {
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+                const response = await fetch(`${apiUrl}/search?q=${encodeURIComponent(searchUrl)}`);
+                const data = await response.json();
+
+                setResults(data.map((res: any) => ({
+                    ...res,
+                    displayDate: new Date(res.timestamp).toLocaleString(),
+                    replayUrl: `/web/${res.timestamp.replace(/[-:T]/g, "").split(".")[0]}/${res.url}`
+                })));
+            } catch (error) {
+                console.error("Search failed:", error);
+            }
+        }
+    };
+
     return (
         <main className="min-h-screen bg-[#0a0a0a] text-white selection:bg-primary-500 selection:text-white">
             {/* Navigation */}
@@ -45,14 +69,48 @@ export default function Home() {
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
                             <input
                                 type="text"
+                                value={searchUrl}
+                                onChange={(e) => setSearchUrl(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                                 placeholder="Paste a URL to archive or search the history..."
                                 className="w-full bg-black/40 border border-white/10 rounded-xl py-4 pl-12 pr-32 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all text-lg"
                             />
-                            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600 hover:bg-primary-500 text-white px-6 py-2.5 rounded-lg font-bold transition-all">
+                            <button
+                                onClick={handleSearch}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-primary-600 hover:bg-primary-500 text-white px-6 py-2.5 rounded-lg font-bold transition-all"
+                            >
                                 Archive Now
                             </button>
                         </div>
                     </div>
+
+                    {results.length > 0 && (
+                        <div className="mt-12 text-left max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <h2 className="text-lg font-semibold mb-4 text-gray-300">Snapshots for {results[0].url}</h2>
+                            <div className="grid gap-3">
+                                {results.map((res, i) => (
+                                    <a
+                                        key={i}
+                                        href={res.replayUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-primary-500/50 hover:bg-white/10 transition-all group"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <Clock size={18} className="text-primary-500" />
+                                            <div>
+                                                <div className="font-medium text-white group-hover:text-primary-400 transition-colors">{res.displayDate}</div>
+                                                <div className="text-xs text-gray-500">{res.timestamp}</div>
+                                            </div>
+                                        </div>
+                                        <div className="text-primary-500 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
+                                            Replay History →
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </section>
 

@@ -1,5 +1,5 @@
 [package]
-name = "archive-crawler"
+name = "archive-indexer"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -7,18 +7,15 @@ license.workspace = true
 [dependencies]
 archive-common = { path = "../common" }
 tokio.workspace = true
-reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-tracing.workspace = true
-anyhow.workspace = true
-url.workspace = true
-dotenvy.workspace = true
-scraper = "0.18"
-robots_txt = "0.3"
-async-trait = "0.1"
-futures = "0.3"
-sha2 = "0.10"
 sqlx.workspace = true
-chrono.workspace = true
-uuid.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow.workspace = true
+dotenvy.workspace = true
+opensearch.workspace = true
+lol_html.workspace = true
+scraper = "0.18"
+url.workspace = true
+reqwest.workspace = true

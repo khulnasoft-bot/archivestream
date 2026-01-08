@@ -1,21 +1,22 @@
 use archive_crawler::Crawler;
-use tracing::{info, Level};
-use tracing_subscriber::FmtSubscriber;
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let subscriber = FmtSubscriber::builder()
-        .with_max_level(Level::INFO)
-        .finish();
+    dotenvy::dotenv().ok();
+    tracing_subscriber::fmt::init();
 
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("setting default subscriber failed");
+    info!("ArchiveStream Crawler v0.1.0 starting...");
 
-    info!("ArchiveStream Crawler Starting...");
+    let database_url = std::env::var("DATABASE_URL")
+        .unwrap_or_else(|_| "postgres://admin:password@localhost/archivestream".into());
+    let pool = sqlx::PgPool::connect(&database_url).await?;
 
-    let crawler = Crawler::new();
-    crawler.add_url("https://example.com".to_string()).await;
+    let crawler = Crawler::new(pool);
     
+    // Seed for demo
+    let _ = crawler.add_url("https://example.com").await;
+
     crawler.run().await?;
 
     Ok(())
