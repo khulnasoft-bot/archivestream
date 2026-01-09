@@ -96,6 +96,30 @@ Computes a semantic text diff between two snapshots.
 
 ---
 
+## 🧠 Intelligence API (Phase 7)
+
+### Semantic Change Analysis
+`GET /semantic`
+
+Performs deep semantic analysis and LLM-powered summarization of changes between snapshots.
+
+**Query Parameters:** Same as `/diff`.
+
+---
+
+## 🌐 Federation API (Phase 6)
+
+### List Peers
+`GET /federation/peers`
+
+### Federated Search
+`GET /federation/search?q=query`
+
+### Get Manifest
+`GET /federation/manifest`
+
+---
+
 ## 🛡️ Rate Limits & Auth
 - **Public Access**: 100 requests / minute per IP.
 - **API Keys**: Required for higher throughput (Coming soon in v1.1).

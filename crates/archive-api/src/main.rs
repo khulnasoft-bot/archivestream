@@ -36,6 +36,8 @@ pub struct AppState {
     pub warc_reader: WarcReader,
     pub search_service: SearchService,
     pub peer_manager: PeerManager,
+    pub intelligence_engine: Arc<dyn archive_intelligence::IntelligenceEngine>,
+    pub notification_dispatcher: Arc<dyn archive_notification::NotificationDispatcher>,
     pub config: AppConfig,
 }
 
@@ -60,6 +62,7 @@ struct TimelineSnapshot {
     timestamp: chrono::DateTime<Utc>,
     status: u16,
     digest: String,
+    intensity: f32, // Heatmap intensity 0.0 to 1.0
 }
 
 #[derive(Deserialize)]
@@ -127,6 +130,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let os_client = OpenSearch::new(transport);
 
     let node_id = std::env::var("NODE_ID").unwrap_or_else(|_| Uuid::new_v4().to_string());
+    
+    // Initialize Intelligence Engine (Phase 7)
+    let openai_key = std::env::var("OPENAI_API_KEY").ok();
+    let llm_engine = openai_key.map(|key| {
+        let model = std::env::var("OPENAI_MODEL").unwrap_or_else(|_| "gpt-4-turbo-preview".to_string());
+        archive_intelligence::LLMIntelligenceEngine::new(key, model, None)
+    });
+    let intelligence_engine: Arc<dyn archive_intelligence::IntelligenceEngine> = Arc::new(
+        archive_intelligence::HybridEngine::new(llm_engine)
+    );
+
+    let notification_dispatcher: Arc<dyn archive_notification::NotificationDispatcher> = Arc::new(
+        archive_notification::MultiChannelDispatcher::new()
+    );
 
     let state = Arc::new(AppState {
         pool: pool.clone(),
@@ -134,6 +151,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         warc_reader: WarcReader::new(s3_endpoint),
         search_service: SearchService::new(os_client),
         peer_manager: PeerManager::new(node_id.clone()),
+        intelligence_engine,
+        notification_dispatcher,
         config: AppConfig { node_id },
     });
 
@@ -201,14 +220,20 @@ async fn get_timeline(
     match rows {
         Ok(rows) => {
             use sqlx::Row;
+            let mut last_digest = String::new();
             let snapshots = rows.into_iter().map(|row| {
                 let status_code: i16 = row.get("status_code");
+                let digest: String = row.get("sha256");
+                let intensity = if digest != last_digest && !last_digest.is_empty() { 1.0 } else { 0.1 };
+                last_digest = digest.clone();
+                
                 TimelineSnapshot {
                     timestamp: row.get("timestamp"),
                     status: status_code as u16,
-                    digest: row.get("sha256"),
+                    digest,
+                    intensity,
                 }
-            }).collect();
+            }).collect::<Vec<_>>();
             
             Json(TimelineResponse {
                 url: params.url,

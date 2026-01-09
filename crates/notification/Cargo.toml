@@ -1,5 +1,5 @@
 [package]
-name = "archive-intelligence"
+name = "archive-notification"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,12 +8,11 @@ license.workspace = true
 archive-common = { path = "../common" }
 archive-semantic = { path = "../semantic" }
 tokio.workspace = true
-reqwest = { workspace = true, features = ["json"] }
 serde.workspace = true
 serde_json.workspace = true
+reqwest = { workspace = true, features = ["json"] }
 tracing.workspace = true
 anyhow.workspace = true
 async-trait = "0.1"
-
-# Optional: Add candle or rust-bert later for local inference
-# For now, we define the interfaces
+uuid.workspace = true
+chrono.workspace = true

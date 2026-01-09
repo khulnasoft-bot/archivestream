@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { TimeScrubber } from "@/components/TimeScrubber";
 import { DiffViewer } from "@/components/DiffViewer";
+import { VisualDiff } from "@/components/VisualDiff";
 import { useState, useEffect } from "react";
 
 export default function ReplayPage() {
@@ -14,6 +15,8 @@ export default function ReplayPage() {
 
     const [iframeSrc, setIframeSrc] = useState("");
     const [isDiffMode, setIsDiffMode] = useState(false);
+    const [diffType, setDiffType] = useState<"visual" | "text">("visual");
+    const [diffTimestamps, setDiffTimestamps] = useState<{ from: string, to: string } | null>(null);
     const [diffData, setDiffData] = useState<any>(null);
     const [diffLoading, setDiffLoading] = useState(false);
 
@@ -25,10 +28,12 @@ export default function ReplayPage() {
     const handleNavigate = (newTimestamp: string) => {
         setIsDiffMode(false);
         setDiffData(null);
+        setDiffTimestamps(null);
         router.push(`/web/${newTimestamp}/${originalUrl}`);
     };
 
     const handleDiff = async (from: string, to: string) => {
+        setDiffTimestamps({ from, to });
         setDiffLoading(true);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -57,7 +62,33 @@ export default function ReplayPage() {
             {/* Dynamic Content Area */}
             <div className="flex-1 w-full bg-white relative overflow-hidden flex flex-col">
                 {isDiffMode ? (
-                    <DiffViewer data={diffData} loading={diffLoading} />
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                        {/* Internal Toggle */}
+                        <div className="absolute top-4 right-6 z-[60] flex bg-black/80 backdrop-blur rounded-full border border-white/10 p-1">
+                            <button
+                                onClick={() => setDiffType("visual")}
+                                className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all ${diffType === "visual" ? "bg-primary-500 text-white" : "text-gray-500 hover:text-white"}`}
+                            >
+                                Visual
+                            </button>
+                            <button
+                                onClick={() => setDiffType("text")}
+                                className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all ${diffType === "text" ? "bg-primary-500 text-white" : "text-gray-500 hover:text-white"}`}
+                            >
+                                Code
+                            </button>
+                        </div>
+
+                        {diffType === "visual" && diffTimestamps ? (
+                            <VisualDiff
+                                url={originalUrl}
+                                fromTimestamp={diffTimestamps.from}
+                                toTimestamp={diffTimestamps.to}
+                            />
+                        ) : (
+                            <DiffViewer data={diffData} loading={diffLoading} />
+                        )}
+                    </div>
                 ) : (
                     <div className="flex-1 relative">
                         {!iframeSrc ? (

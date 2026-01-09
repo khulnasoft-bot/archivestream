@@ -12,7 +12,7 @@ impl DedupService {
 
     pub async fn is_duplicate(&self, hash: &str) -> Result<bool> {
         let exists = sqlx::query(
-            "SELECT 1 as x FROM payloads WHERE hash = $1"
+            "SELECT 1 AS x FROM payloads WHERE hash = $1"
         )
         .bind(hash)
         .fetch_optional(&self.pool)

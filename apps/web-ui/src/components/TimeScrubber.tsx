@@ -8,6 +8,7 @@ interface TimelineSnapshot {
     timestamp: string;
     status: number;
     digest: string;
+    intensity: number;
 }
 
 interface TimeScrubberProps {
@@ -107,9 +108,11 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
                             <button
                                 key={i}
                                 onClick={() => handleSnap(i)}
-                                className={`absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full transition-all group/tick ${isCurrent ? "bg-primary-500 scale-125 z-20 shadow-[0_0_12px_rgba(var(--primary-rgb),0.6)]" :
-                                    isTarget ? "bg-orange-500 scale-125 z-20 shadow-[0_0_12px_rgba(249,115,22,0.6)]" :
-                                        "bg-white/20 hover:bg-white/50"
+                                className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-all group/tick ${isCurrent ? "bg-primary-500 scale-150 z-20 shadow-[0_0_12px_rgba(var(--primary-rgb),0.8)]" :
+                                    isTarget ? "bg-orange-500 scale-150 z-20 shadow-[0_0_12px_rgba(249,115,22,0.8)]" :
+                                        s.intensity > 0.5 ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]" :
+                                            s.intensity > 0 ? "bg-primary-400" :
+                                                "bg-white/20 hover:bg-white/50"
                                     }`}
                                 style={{ left: `${pos}%` }}
                             >

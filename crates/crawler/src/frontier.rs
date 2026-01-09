@@ -66,6 +66,19 @@ impl FrontierService {
         Ok(())
     }
 
+    pub async fn reschedule(&self, url: &str, next_fetch_at: chrono::DateTime<Utc>, priority: i32) -> Result<()> {
+        sqlx::query(
+            "UPDATE url_frontier SET next_fetch_at = $1, priority = $2, leased_until = NULL, fetch_attempts = 0 WHERE url = $3"
+        )
+        .bind(next_fetch_at)
+        .bind(priority)
+        .bind(url)
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
+
+
     pub async fn fail(&self, url: &str, backoff_seconds: i64) -> Result<()> {
         let next_fetch = Utc::now() + chrono::Duration::seconds(backoff_seconds);
         sqlx::query(
@@ -92,4 +105,17 @@ impl FrontierService {
         .await?;
         Ok(())
     }
+
+    pub async fn get_snapshot_history(&self, url: &str) -> Result<Vec<archive_intelligence::SnapshotHistory>> {
+        let history = sqlx::query_as::<_, archive_intelligence::SnapshotHistory>(
+            "SELECT timestamp, sha256 as content_hash FROM snapshots WHERE url = $1 ORDER BY timestamp ASC"
+        )
+        .bind(url)
+        .fetch_all(&self.pool)
+        .await?;
+        
+        Ok(history)
+    }
 }
+
+

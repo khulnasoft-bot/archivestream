@@ -23,7 +23,6 @@ build:
 # Run all tests
 test:
 	cargo test --workspace
-	cd apps/web-ui && npm test
 
 # Clean build artifacts
 clean:

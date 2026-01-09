@@ -14,11 +14,14 @@ use crate::frontier::FrontierService;
 use crate::region::{Region, RegionRouter};
 use crate::rate_limit::RateLimiter;
 use sqlx::PgPool;
+use archive_intelligence::{PredictiveEngine, StandardPredictor};
+use std::sync::Arc;
 
 pub struct Crawler {
     fetcher: Fetcher,
     dedup: DedupService,
     frontier: FrontierService,
+    predictor: Arc<dyn PredictiveEngine>,
     #[allow(dead_code)]
     region: Region,
     #[allow(dead_code)]
@@ -36,6 +39,7 @@ impl Crawler {
             fetcher: Fetcher::new(),
             dedup: DedupService::new(pool.clone()),
             frontier: FrontierService::new(pool.clone()),
+            predictor: Arc::new(StandardPredictor),
             region,
             region_router: RegionRouter::new(),
             rate_limiter: RateLimiter::new(pool),
@@ -84,7 +88,22 @@ impl Crawler {
                                 }
 
                                 // Mark as complete in frontier
-                                let _ = self.frontier.complete(&url).await;
+                                // Mark as complete in frontier OR reschedule if it's a known URL (Phase 7.3)
+                                let history = self.frontier.get_snapshot_history(&url).await.unwrap_or_default();
+                                if !history.is_empty() {
+                                    match self.predictor.predict_next_crawl(&history).await {
+                                        Ok(prediction) => {
+                                            info!("Rescheduling {}: Next crawl at {}, Priority: {}", url, prediction.next_fetch_at, prediction.recommended_priority);
+                                            let _ = self.frontier.reschedule(&url, prediction.next_fetch_at, prediction.recommended_priority).await;
+                                        }
+                                        Err(_) => {
+                                            let _ = self.frontier.complete(&url).await;
+                                        }
+                                    }
+                                } else {
+                                    let _ = self.frontier.complete(&url).await;
+                                }
+
 
                                 // Extract links and feed back to frontier
                                 if record.content_type.contains("html") {

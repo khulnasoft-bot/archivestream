@@ -8,6 +8,8 @@ license.workspace = true
 archive-common = { path = "../common" }
 archive-semantic = { path = "../semantic" }
 archive-federation = { path = "../federation" }
+archive-intelligence = { path = "../intelligence" }
+archive-notification = { path = "../notification" }
 axum.workspace = true
 tokio.workspace = true
 serde.workspace = true

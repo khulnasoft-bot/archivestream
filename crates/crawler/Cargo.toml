@@ -6,6 +6,7 @@ license.workspace = true
 
 [dependencies]
 archive-common = { path = "../common" }
+archive-intelligence = { path = "../intelligence" }
 tokio.workspace = true
 reqwest.workspace = true
 serde.workspace = true
