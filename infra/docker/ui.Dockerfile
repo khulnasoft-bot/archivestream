@@ -1,7 +1,6 @@
 FROM node:20-alpine AS builder
-WORKDIR /app
-COPY apps/web-ui/package*.json ./apps/web-ui/
 WORKDIR /app/apps/web-ui
+COPY apps/web-ui/package*.json ./
 RUN npm install
 COPY apps/web-ui .
 RUN npm run build
