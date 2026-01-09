@@ -12,7 +12,12 @@ interface VisualDiffProps {
   toTimestamp: string;
 }
 
-type Mode = "side-by-side" | "overlay" | "pixel-diff" | "dom-diff" | "cross-fade";
+type Mode =
+  | "side-by-side"
+  | "overlay"
+  | "pixel-diff"
+  | "dom-diff"
+  | "cross-fade";
 
 export const VisualDiff: React.FC<VisualDiffProps> = ({
   url,
@@ -48,13 +53,16 @@ export const VisualDiff: React.FC<VisualDiffProps> = ({
         iframe.style.height = "1080px";
         iframe.onload = async () => {
           try {
-            const canvas = await html2canvas(iframe.contentWindow!.document.body, {
-              useCORS: true,
-              width: 1920,
-              height: 1080,
-              scrollX: 0,
-              scrollY: 0,
-            });
+            const canvas = await html2canvas(
+              iframe.contentWindow!.document.body,
+              {
+                useCORS: true,
+                width: 1920,
+                height: 1080,
+                scrollX: 0,
+                scrollY: 0,
+              },
+            );
             document.body.removeChild(iframe);
             resolve(canvas);
           } catch (e) {
@@ -127,7 +135,6 @@ export const VisualDiff: React.FC<VisualDiffProps> = ({
 
       setDomHtmlFrom(fromHtml);
       setDomHtmlTo(toHtml);
-
     } catch (error) {
       console.error("Error fetching DOM content:", error);
     } finally {
@@ -163,7 +170,20 @@ export const VisualDiff: React.FC<VisualDiffProps> = ({
           onClick={() => setMode("cross-fade")}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase transition-all whitespace-nowrap ${mode === "cross-fade" ? "bg-primary-500 text-white" : "hover:bg-white/5 text-gray-400"}`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          </svg>
           Cross-fade
         </button>
         <button
@@ -192,28 +212,44 @@ export const VisualDiff: React.FC<VisualDiffProps> = ({
             animation: fadeIn 0.5s ease-out;
           }
           @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
           }
         `}</style>
 
-        {mode === 'pixel-diff' ? (
+        {mode === "pixel-diff" ? (
           <div className="w-full h-full flex items-center justify-center bg-black/20">
             {isDiffing && (
               <div className="flex flex-col items-center gap-3">
                 <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                <div className="text-white text-[10px] font-bold uppercase tracking-wider">Analyzing Pixels...</div>
+                <div className="text-white text-[10px] font-bold uppercase tracking-wider">
+                  Analyzing Pixels...
+                </div>
               </div>
             )}
-            {diffImage && <img src={diffImage} alt="Pixel Diff" className="max-w-full max-h-full object-contain animate-in fade-in duration-500" />}
+            {diffImage && (
+              <img
+                src={diffImage}
+                alt="Pixel Diff"
+                className="max-w-full max-h-full object-contain animate-in fade-in duration-500"
+              />
+            )}
           </div>
-        ) : mode === 'dom-diff' ? (
+        ) : mode === "dom-diff" ? (
           <div className="flex h-full w-full divide-x divide-black/20">
             <div className="flex-1 relative group">
               <div className="absolute top-4 left-4 z-10 px-2 py-1 bg-black/80 backdrop-blur rounded text-[10px] font-bold text-white uppercase border border-white/10 opacity-60 group-hover:opacity-100 transition-opacity">
                 Previous: {fromTimestamp}
               </div>
-              {isDomDiffing && <div className="text-white absolute inset-0 flex items-center justify-center bg-black/40">Loading...</div>}
+              {isDomDiffing && (
+                <div className="text-white absolute inset-0 flex items-center justify-center bg-black/40">
+                  Loading...
+                </div>
+              )}
               {domHtmlFrom && (
                 <iframe
                   srcDoc={domHtmlFrom}
@@ -226,7 +262,11 @@ export const VisualDiff: React.FC<VisualDiffProps> = ({
               <div className="absolute top-4 left-4 z-10 px-2 py-1 bg-primary-600/80 backdrop-blur rounded text-[10px] font-bold text-white uppercase border border-white/10 opacity-60 group-hover:opacity-100 transition-opacity">
                 Current: {toTimestamp}
               </div>
-              {isDomDiffing && <div className="text-white absolute inset-0 flex items-center justify-center bg-black/40">Loading...</div>}
+              {isDomDiffing && (
+                <div className="text-white absolute inset-0 flex items-center justify-center bg-black/40">
+                  Loading...
+                </div>
+              )}
               {domHtmlTo && (
                 <iframe
                   srcDoc={domHtmlTo}

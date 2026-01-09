@@ -1,16 +1,16 @@
 pub mod storage;
 
-pub use storage::{IpfsStorage, IpfsSnapshot, SnapshotManifest, IpfsStats};
+pub use storage::{IpfsSnapshot, IpfsStats, IpfsStorage, SnapshotManifest};
 
-use sha2::{Sha256, Digest};
 use bs58;
+use sha2::{Digest, Sha256};
 
 /// Generate content identifier (CID) for data
 pub fn generate_cid(data: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(data);
     let hash = hasher.finalize();
-    
+
     // Simplified CID - in production use multihash + multibase
     format!("Qm{}", bs58::encode(&hash).into_string())
 }
@@ -37,7 +37,7 @@ mod tests {
     fn test_cid_verification() {
         let data = b"test data";
         let cid = generate_cid(data);
-        
+
         assert!(verify_cid(data, &cid));
         assert!(!verify_cid(b"different data", &cid));
     }

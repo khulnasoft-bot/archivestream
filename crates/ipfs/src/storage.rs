@@ -1,9 +1,9 @@
 use anyhow::Result;
+use futures_util::{stream::StreamExt, TryStreamExt};
 use ipfs_api_backend_hyper::{IpfsApi, IpfsClient, TryFromUri};
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 use tracing::{info, warn};
-use futures_util::{stream::StreamExt, TryStreamExt};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IpfsSnapshot {
@@ -27,26 +27,27 @@ impl IpfsStorage {
     /// Store WARC content on IPFS
     pub async fn store_warc(&self, content: &[u8]) -> Result<String> {
         info!("Storing {} bytes to IPFS", content.len());
-        
+
         let cursor = Cursor::new(content.to_vec());
         let response = self.client.add(cursor).await?;
-        
+
         let cid = response.hash;
         info!("Stored to IPFS with CID: {}", cid);
-        
+
         Ok(cid)
     }
 
     /// Retrieve WARC content from IPFS
     pub async fn retrieve_warc(&self, cid: &str) -> Result<Vec<u8>> {
         info!("Retrieving CID: {}", cid);
-        
-        let data = self.client
+
+        let data = self
+            .client
             .cat(cid)
             .map(|chunk_res| chunk_res.map(|chunk| chunk.to_vec()))
             .try_concat()
             .await?;
-        
+
         info!("Retrieved {} bytes from IPFS", data.len());
         Ok(data)
     }
@@ -69,10 +70,13 @@ impl IpfsStorage {
     pub async fn publish_manifest(&self, manifest: &SnapshotManifest) -> Result<String> {
         let json = serde_json::to_vec(manifest)?;
         let cid = self.store_warc(&json).await?;
-        
+
         // Publish to IPNS (requires IPFS key)
-        let response = self.client.name_publish(&cid, true, None, None, None).await?;
-        
+        let response = self
+            .client
+            .name_publish(&cid, true, None, None, None)
+            .await?;
+
         Ok(response.name)
     }
 
@@ -85,11 +89,12 @@ impl IpfsStorage {
     /// Get IPFS node stats
     pub async fn stats(&self) -> Result<IpfsStats> {
         let repo_stats = self.client.stats_repo().await?;
-        
-                    Ok(IpfsStats {
-                        num_objects: repo_stats.num_objects,
-                        repo_size: repo_stats.repo_size,
-                    })    }
+
+        Ok(IpfsStats {
+            num_objects: repo_stats.num_objects,
+            repo_size: repo_stats.repo_size,
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -113,10 +118,10 @@ mod tests {
     #[ignore] // Requires running IPFS daemon
     async fn test_ipfs_storage() {
         let storage = IpfsStorage::new("http://localhost:5001").unwrap();
-        
+
         let content = b"Hello, IPFS!";
         let cid = storage.store_warc(content).await.unwrap();
-        
+
         let retrieved = storage.retrieve_warc(&cid).await.unwrap();
         assert_eq!(content, retrieved.as_slice());
     }

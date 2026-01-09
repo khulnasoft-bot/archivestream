@@ -1,5 +1,5 @@
 use img_hash::image::DynamicImage;
-use img_hash::{HasherConfig, ImageHash, image::GenericImageView};
+use img_hash::{image::GenericImageView, HasherConfig, ImageHash};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -41,18 +41,18 @@ impl VisualChangeDetector {
         let hasher = self.hasher.to_hasher();
         let hash1 = hasher.hash_image(img1);
         let hash2 = hasher.hash_image(img2);
-        
+
         let hash_distance = hash1.dist(&hash2);
-        
+
         // Calculate pixel-level similarity
         let similarity = self.calculate_similarity(img1, img2)?;
-        
+
         // Detect changed regions
         let changed_regions = self.find_changed_regions(img1, img2)?;
-        
+
         // Detect layout shifts (significant position changes)
         let layout_shift = self.detect_layout_shift(img1, img2)?;
-        
+
         Ok(VisualDiff {
             similarity_score: similarity,
             perceptual_hash_distance: hash_distance,
@@ -79,12 +79,12 @@ impl VisualChangeDetector {
             for x in 0..width {
                 let p1 = img1.get_pixel(x, y);
                 let p2 = img2.get_pixel(x, y);
-                
+
                 // Simple RGB difference
                 let diff = ((p1[0] as i32 - p2[0] as i32).abs()
                     + (p1[1] as i32 - p2[1] as i32).abs()
                     + (p1[2] as i32 - p2[2] as i32).abs()) as u32;
-                
+
                 if diff > 30 {
                     // Threshold for "different" pixel
                     diff_pixels += 1;
@@ -110,11 +110,10 @@ impl VisualChangeDetector {
             for x in (0..width).step_by(grid_size) {
                 let block_width = grid_size.min((width - x) as usize) as u32;
                 let block_height = grid_size.min((height - y) as usize) as u32;
-                
-                let intensity = self.calculate_block_change(
-                    img1, img2, x, y, block_width, block_height
-                )?;
-                
+
+                let intensity =
+                    self.calculate_block_change(img1, img2, x, y, block_width, block_height)?;
+
                 if intensity > 0.1 {
                     // Significant change detected
                     regions.push(Region {
@@ -147,14 +146,14 @@ impl VisualChangeDetector {
             for dx in 0..width {
                 let px = x + dx;
                 let py = y + dy;
-                
+
                 let p1 = img1.get_pixel(px, py);
                 let p2 = img2.get_pixel(px, py);
-                
+
                 let diff = ((p1[0] as i32 - p2[0] as i32).abs()
                     + (p1[1] as i32 - p2[1] as i32).abs()
                     + (p1[2] as i32 - p2[2] as i32).abs()) as u32;
-                
+
                 if diff > 30 {
                     diff_pixels += 1;
                 }
@@ -174,7 +173,7 @@ impl VisualChangeDetector {
         // In production, use edge detection + feature matching
         let hasher = self.hasher.to_hasher();
         let hash_distance = hasher.hash_image(img1).dist(&hasher.hash_image(img2));
-        
+
         // If perceptual hash is similar but pixel diff is high, likely a layout shift
         Ok(hash_distance < 10 && self.calculate_similarity(img1, img2)? > 0.3)
     }
@@ -195,7 +194,7 @@ mod tests {
     fn test_identical_images() {
         let detector = VisualChangeDetector::new();
         let img = DynamicImage::ImageRgba8(RgbaImage::new(100, 100));
-        
+
         let diff = detector.detect_changes(&img, &img).unwrap();
         assert_eq!(diff.similarity_score, 0.0);
         assert_eq!(diff.perceptual_hash_distance, 0);
@@ -206,13 +205,13 @@ mod tests {
         let detector = VisualChangeDetector::new();
         let img1 = DynamicImage::ImageRgba8(RgbaImage::new(100, 100));
         let mut img2 = RgbaImage::new(100, 100);
-        
+
         // Fill with white
         for pixel in img2.pixels_mut() {
             *pixel = image::Rgba([255, 255, 255, 255]);
         }
         let img2 = DynamicImage::ImageRgba8(img2);
-        
+
         let diff = detector.detect_changes(&img1, &img2).unwrap();
         assert!(diff.similarity_score > 0.5);
     }

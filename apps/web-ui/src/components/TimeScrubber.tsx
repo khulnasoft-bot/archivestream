@@ -35,7 +35,9 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
   const scrubberRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedBookmarks = JSON.parse(localStorage.getItem(`bookmarks_${url}`) || "[]");
+    const savedBookmarks = JSON.parse(
+      localStorage.getItem(`bookmarks_${url}`) || "[]",
+    );
     setBookmarks(savedBookmarks);
   }, [url]);
 
@@ -88,7 +90,7 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
     const ts = snapshots[selectedIndex].timestamp;
     let newBookmarks;
     if (bookmarks.includes(ts)) {
-      newBookmarks = bookmarks.filter(b => b !== ts);
+      newBookmarks = bookmarks.filter((b) => b !== ts);
     } else {
       newBookmarks = [...bookmarks, ts];
     }
@@ -119,10 +121,11 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
       <div className="flex items-center gap-2">
         <button
           onClick={toggleDiffMode}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${isDiffMode
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${
+            isDiffMode
               ? "bg-primary-500/20 border-primary-500 text-primary-400"
               : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
-            }`}
+          }`}
         >
           <GitCompare size={16} />
           <span className="text-xs font-bold uppercase tracking-tight">
@@ -131,10 +134,12 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
         </button>
         <button
           onClick={toggleBookmark}
-          className={`p-1.5 rounded-lg border transition-all ${selectedIndex !== -1 && bookmarks.includes(snapshots[selectedIndex].timestamp)
+          className={`p-1.5 rounded-lg border transition-all ${
+            selectedIndex !== -1 &&
+            bookmarks.includes(snapshots[selectedIndex].timestamp)
               ? "bg-amber-500/20 border-amber-500 text-amber-400"
               : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10"
-            }`}
+          }`}
           title="Bookmark Snapshot"
         >
           <svg
@@ -142,7 +147,12 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
             width="16"
             height="16"
             viewBox="0 0 24 24"
-            fill={selectedIndex !== -1 && bookmarks.includes(snapshots[selectedIndex].timestamp) ? "currentColor" : "none"}
+            fill={
+              selectedIndex !== -1 &&
+              bookmarks.includes(snapshots[selectedIndex].timestamp)
+                ? "currentColor"
+                : "none"
+            }
             stroke="currentColor"
             strokeWidth="2"
             strokeLinecap="round"
@@ -199,7 +209,8 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
               <button
                 key={i}
                 onClick={() => handleSnap(i)}
-                className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-all group/tick ${isCurrent
+                className={`absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full transition-all group/tick ${
+                  isCurrent
                     ? "bg-primary-500 scale-150 z-20 shadow-[0_0_12px_rgba(var(--primary-rgb),0.8)]"
                     : isTarget
                       ? "bg-orange-500 scale-150 z-20 shadow-[0_0_12px_rgba(249,115,22,0.8)]"
@@ -210,7 +221,7 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
                           : s.intensity > 0
                             ? "bg-primary-400"
                             : "bg-white/20 hover:bg-white/50"
-                  }`}
+                }`}
                 style={{ left: `${pos}%` }}
               >
                 {isBookmarked && (
@@ -219,7 +230,8 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
                   </div>
                 )}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black border border-white/10 rounded text-[10px] whitespace-nowrap opacity-0 group-hover/tick:opacity-100 transition-opacity pointer-events-none">
-                  {isBookmarked && "★ "}{format(new Date(s.timestamp), "MMM dd, HH:mm")}
+                  {isBookmarked && "★ "}
+                  {format(new Date(s.timestamp), "MMM dd, HH:mm")}
                 </div>
               </button>
             );
@@ -243,14 +255,13 @@ export const TimeScrubber: React.FC<TimeScrubberProps> = ({
           <div className="text-sm font-mono font-bold">
             {selectedIndex >= 0
               ? format(
-                new Date(snapshots[selectedIndex].timestamp),
-                "MMM dd, HH:mm",
-              )
+                  new Date(snapshots[selectedIndex].timestamp),
+                  "MMM dd, HH:mm",
+                )
               : "..."}
           </div>
         </div>
       </div>
     </div>
-
   );
 };

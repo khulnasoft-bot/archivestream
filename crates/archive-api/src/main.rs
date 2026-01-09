@@ -166,7 +166,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/resolve", get(resolve_v1))
         .route("/semantic", get(semantic::get_semantic_change))
         .route("/diff", get(get_diff))
-        .route("/snapshot_content/:timestamp/*url", get(snapshot_content_handler))
+        .route(
+            "/snapshot_content/:timestamp/*url",
+            get(snapshot_content_handler),
+        )
         .route("/federation/peers", get(federation::get_peers))
         .route("/federation/search", get(federation::search_federated))
         .route("/federation/manifest", get(federation::get_manifest))
@@ -356,7 +359,6 @@ async fn get_frontier_health(State(state): State<Arc<AppState>>) -> impl IntoRes
     }
 }
 
-
 async fn get_outcomes(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let rows = sqlx::query(
         r#"
@@ -473,7 +475,8 @@ async fn replay_handler(
     if !snapshot.content_type.contains("html") {
         res_builder = res_builder.header("Cache-Control", "public, max-age=31536000, immutable");
     } else {
-        res_builder = res_builder.header("Cache-Control", "public, max-age=60"); // HTML can be cached shortly
+        res_builder = res_builder.header("Cache-Control", "public, max-age=60");
+        // HTML can be cached shortly
     }
 
     // Replay Logic: Rewrite if HTML
