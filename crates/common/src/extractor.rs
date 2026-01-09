@@ -10,7 +10,7 @@ pub struct ExtractionResult {
 pub trait ExtractorPlugin: Send + Sync {
     fn name(&self) -> &str;
     fn extract(&self, html: &Html) -> ExtractionResult;
-    fn can_handle(&self, url: &str) -> bool {
+    fn can_handle(&self, _url: &str) -> bool {
         true
     }
 }
@@ -91,6 +91,12 @@ impl PluginRegistry {
             .filter(|p| p.can_handle(url))
             .map(|p| p.extract(&document))
             .collect()
+    }
+}
+
+impl Default for PluginRegistry {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

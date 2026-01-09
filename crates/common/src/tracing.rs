@@ -1,8 +1,4 @@
-use opentelemetry::{
-    global,
-    trace::{Tracer, TracerProvider},
-    KeyValue,
-};
+use opentelemetry::{global, KeyValue};
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{
     trace::{self as sdktrace, Sampler},

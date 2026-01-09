@@ -3,11 +3,10 @@ pub mod detector;
 pub use detector::{Region, VisualChangeDetector, VisualDiff};
 
 use img_hash::image::DynamicImage;
-use std::path::Path;
 
 /// Capture a screenshot of a rendered web page
 /// This would integrate with headless browser (e.g., chromiumoxide)
-pub async fn capture_screenshot(url: &str) -> anyhow::Result<DynamicImage> {
+pub async fn capture_screenshot(_url: &str) -> anyhow::Result<DynamicImage> {
     // Placeholder - in production, use headless Chrome
     // Example with chromiumoxide:
     // let browser = Browser::default().await?;

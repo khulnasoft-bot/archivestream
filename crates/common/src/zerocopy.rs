@@ -8,6 +8,7 @@ use std::path::Path;
 /// Provides 10x faster access by avoiding buffer copies
 pub struct ZeroCopyWarcReader {
     mmap: Mmap,
+    #[allow(dead_code)]
     index: HashMap<u64, (usize, usize)>, // offset -> (start, length)
 }
 

@@ -1,7 +1,6 @@
 use img_hash::image::DynamicImage;
-use img_hash::{image::GenericImageView, HasherConfig, ImageHash};
+use img_hash::{image::GenericImageView, HasherConfig};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VisualDiff {

@@ -3,7 +3,7 @@ use futures_util::{stream::StreamExt, TryStreamExt};
 use ipfs_api_backend_hyper::{IpfsApi, IpfsClient, TryFromUri};
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
-use tracing::{info, warn};
+use tracing::info;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IpfsSnapshot {

@@ -2,7 +2,7 @@ pub mod storage;
 
 pub use storage::{IpfsSnapshot, IpfsStats, IpfsStorage, SnapshotManifest};
 
-use bs58;
+
 use sha2::{Digest, Sha256};
 
 /// Generate content identifier (CID) for data
