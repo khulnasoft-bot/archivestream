@@ -1,0 +1,28 @@
+# Stage 1: Builder
+FROM rust:1.78-slim-bookworm AS builder
+
+WORKDIR /app
+
+# Copy only Cargo.toml and Cargo.lock to leverage Docker cache for dependencies
+COPY Cargo.toml Cargo.lock ./
+
+# Build dependencies first (if any)
+RUN mkdir src && echo "fn main() {println!(\"Hello, world!\");}" > src/main.rs && cargo build --release && rm -rf src
+
+# Copy the rest of the application source code
+COPY . .
+
+# Build the application
+RUN cargo build --release --bin YOUR_BINARY_NAME_HERE
+
+# Stage 2: Runtime
+FROM debian:bookworm-slim
+
+# Install necessary runtime dependencies
+RUN apt-get update && apt-get install -y libssl3 ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Copy the built binary from the builder stage
+COPY --from=builder /app/target/release/YOUR_BINARY_NAME_HERE /usr/local/bin/YOUR_BINARY_NAME_HERE
+
+# Set the entrypoint to run the application
+CMD ["/usr/local/bin/YOUR_BINARY_NAME_HERE"]
