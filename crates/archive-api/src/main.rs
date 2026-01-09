@@ -388,6 +388,49 @@ async fn get_outcomes(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     }
 }
 
+async fn snapshot_content_handler(
+    State(state): State<Arc<AppState>>,
+    Path((timestamp_str, url_str)): Path<(String, String)>,
+) -> impl IntoResponse {
+    let replay_url = match ReplayUrl::parse(&timestamp_str, &url_str) {
+        Ok(u) => u,
+        Err(_) => return (StatusCode::BAD_REQUEST, "Invalid timestamp or URL").into_response(),
+    };
+
+    let snapshot = match state
+        .resolver
+        .resolve(&replay_url.original_url, replay_url.timestamp)
+        .await
+    {
+        Ok(Some(s)) => s,
+        Ok(None) => return (StatusCode::NOT_FOUND, "Snapshot not found").into_response(),
+        Err(e) => {
+            tracing::error!("DB Error: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error").into_response();
+        }
+    };
+
+    let raw_data = match state
+        .warc_reader
+        .read_record(&snapshot.warc_file, snapshot.offset, snapshot.length)
+        .await
+    {
+        Ok(d) => d,
+        Err(e) => {
+            tracing::error!("Storage Error: {}", e);
+            return (StatusCode::INTERNAL_SERVER_ERROR, "Error reading archive").into_response();
+        }
+    };
+
+    Response::builder()
+        .status(StatusCode::from_u16(snapshot.status_code as u16).unwrap_or(StatusCode::OK))
+        .header("Content-Type", snapshot.content_type)
+        .header("Cache-Control", "public, max-age=3600") // Cache raw content briefly
+        .body(axum::body::Body::from(raw_data))
+        .unwrap()
+        .into_response()
+}
+
 async fn replay_handler(
     State(state): State<Arc<AppState>>,
     Path((timestamp_str, url_str)): Path<(String, String)>,
@@ -422,20 +465,29 @@ async fn replay_handler(
         }
     };
 
+    let mut res_builder = Response::builder()
+        .status(StatusCode::from_u16(snapshot.status_code as u16).unwrap_or(StatusCode::OK));
+
+    // Asset Caching (Phase 9.2)
+    // Archived assets are immutable for a specific timestamp
+    if !snapshot.content_type.contains("html") {
+        res_builder = res_builder.header("Cache-Control", "public, max-age=31536000, immutable");
+    } else {
+        res_builder = res_builder.header("Cache-Control", "public, max-age=60"); // HTML can be cached shortly
+    }
+
     // Replay Logic: Rewrite if HTML
     if snapshot.content_type.contains("html") {
         let rewriter = Rewriter::new(snapshot.timestamp, snapshot.url);
         let rewritten_body = rewriter.rewrite_html(&raw_data);
 
-        Response::builder()
-            .status(StatusCode::from_u16(snapshot.status_code as u16).unwrap_or(StatusCode::OK))
+        res_builder
             .header("Content-Type", "text/html")
             .body(axum::body::Body::from(rewritten_body))
             .unwrap()
             .into_response()
     } else {
-        Response::builder()
-            .status(StatusCode::from_u16(snapshot.status_code as u16).unwrap_or(StatusCode::OK))
+        res_builder
             .header("Content-Type", snapshot.content_type)
             .body(axum::body::Body::from(raw_data))
             .unwrap()

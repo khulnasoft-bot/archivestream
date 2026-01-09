@@ -1,0 +1,23 @@
+[package]
+name = "archive-ipfs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tracing = "0.1"
+
+# IPFS integration
+ipfs-api-backend-hyper = { version = "0.6", features = ["with-builder"] }
+cid = "0.11"
+multihash = "0.19"
+
+# Content addressing
+sha2 = "0.10"
+base58 = "0.2"
+
+[dev-dependencies]
+tokio-test = "0.4"

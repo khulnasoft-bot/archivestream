@@ -336,8 +336,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 | v1.1 | Q2 2026 ✅ | Federation & sync (Complete) |
 | v1.2 | Q3 2026 ✅ | Advanced ML/LLM (Complete) |
 | v1.3 | Q4 2026 ✅ | Alerts & notifications (Complete) |
-| v2.0 | Q1 2027 🚀 | Enhanced replay (In Progress) |
-| v2.1 | Q2 2027 | Open source release |
+| v2.0 | Q1 2027 ✅ | Enhanced replay (Complete) |
+| v2.1 | Q2 2027 🚀 | Open source release (In Progress) |
 
 ---
 

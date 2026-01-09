@@ -1,0 +1,40 @@
+[
+    {
+        "name": "Price Drop Detector",
+        "description": "Notify when a price decreases on any e-commerce page.",
+        "url_pattern": ".*",
+        "categories": [
+            "price_change"
+        ],
+        "channels": [
+            "email",
+            "webhook"
+        ],
+        "throttle": "1h"
+    },
+    {
+        "name": "Privacy Policy Monitor",
+        "description": "Watch for changes in privacy policies.",
+        "url_pattern": ".*/privacy.*",
+        "categories": [
+            "legal_update"
+        ],
+        "channels": [
+            "slack"
+        ],
+        "throttle": "24h"
+    },
+    {
+        "name": "Breaking News Alert",
+        "description": "Instant notification for critical updates on news sites.",
+        "url_pattern": ".*(cnn.com|bbc.co.uk|nytimes.com).*",
+        "categories": [
+            "critical_update"
+        ],
+        "channels": [
+            "sms",
+            "push"
+        ],
+        "throttle": "5m"
+    }
+]

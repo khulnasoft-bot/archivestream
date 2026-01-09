@@ -8,6 +8,8 @@ members = [
     "crates/federation",
     "crates/intelligence",
     "crates/notification",
+    "crates/vision",
+    "crates/ipfs",
 ]
 resolver = "2"
 

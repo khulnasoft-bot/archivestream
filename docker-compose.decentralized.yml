@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # IPFS node
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: archivestream-ipfs
+    environment:
+      - IPFS_PROFILE=server
+    ports:
+      - "4001:4001" # P2P swarm
+      - "5001:5001" # API
+      - "8080:8080" # Gateway
+    volumes:
+      - ipfs_data:/data/ipfs
+      - ipfs_staging:/export
+    command: daemon --migrate=true --enable-gc
+    networks:
+      - archivestream-network
+
+  # IPFS Cluster for replication
+  ipfs-cluster:
+    image: ipfs/ipfs-cluster:latest
+    container_name: archivestream-ipfs-cluster
+    environment:
+      - CLUSTER_PEERNAME=archivestream-cluster
+      - CLUSTER_SECRET=${CLUSTER_SECRET:-default-secret}
+      - CLUSTER_IPFSHTTP_NODEMULTIADDRESS=/dns4/ipfs/tcp/5001
+      - CLUSTER_RESTAPI_HTTPLISTENMULTIADDRESS=/ip4/0.0.0.0/tcp/9094
+    ports:
+      - "9094:9094" # REST API
+      - "9095:9095" # IPFS Proxy
+      - "9096:9096" # Cluster swarm
+    volumes:
+      - ipfs_cluster_data:/data/ipfs-cluster
+    depends_on:
+      - ipfs
+    networks:
+      - archivestream-network
+
+  # Ethereum node (Ganache for development)
+  ganache:
+    image: trufflesuite/ganache:latest
+    container_name: archivestream-ganache
+    ports:
+      - "8545:8545"
+    command: >
+      --wallet.mnemonic "test test test test test test test test test test test junk" --chain.chainId 1337 --server.host 0.0.0.0
+    networks:
+      - archivestream-network
+
+volumes:
+  ipfs_data:
+  ipfs_staging:
+  ipfs_cluster_data:
+
+
+networks:
+  archivestream-network:
+    external: true

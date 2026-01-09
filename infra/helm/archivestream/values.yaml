@@ -1,0 +1,38 @@
+# Default values for archivestream.
+
+image:
+  repository: ghcr.io/archivestream
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  api:
+    type: ClusterIP
+    port: 3001
+  ui:
+    type: ClusterIP
+    port: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: archive.example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+persistence:
+  enabled: true
+  size: 100Gi
+  storageClass: "standard"
+
+config:
+  databaseUrl: "postgres://admin:password@archivestream-db:5432/archivestream"
+  redisUrl: "redis://archivestream-redis:6379"
+  opensearchUrl: "http://archivestream-os:9200"
+  s3Endpoint: "http://archivestream-minio:9000"
+  s3Bucket: "archives"
+  openaiApiKey: ""

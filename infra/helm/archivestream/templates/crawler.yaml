@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "archivestream.fullname" . }}-crawler
+  labels:
+    app.kubernetes.io/component: crawler
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: crawler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: crawler
+    spec:
+      containers:
+        - name: crawler
+          image: "{{ .Values.image.repository }}/crawler:{{ .Values.image.tag }}"
+          env:
+            - name: DATABASE_URL
+              value: {{ .Values.config.databaseUrl | quote }}
+            - name: REDIS_URL
+              value: {{ .Values.config.redisUrl | quote }}
+            - name: OPENSEARCH_URL
+              value: {{ .Values.config.opensearchUrl | quote }}
+            - name: S3_ENDPOINT
+              value: {{ .Values.config.s3Endpoint | quote }}
+            - name: S3_BUCKET
+              value: {{ .Values.config.s3Bucket | quote }}

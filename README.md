@@ -88,6 +88,53 @@ npm run dev
 
 Visit `http://localhost:3000` to access the UI.
 
+### One-Click Deployment
+
+```bash
+# Deploy to AWS, GCP, or Azure
+./scripts/deploy.sh
+```
+
+The deployment script will:
+- Detect your cloud environment
+- Provision infrastructure with Terraform
+- Deploy ArchiveStream with Helm
+- Configure DNS and TLS
+
+### Kubernetes with Helm
+
+```bash
+# Add Helm repository
+helm repo add archivestream https://archivestream.github.io/charts
+helm install my-archive archivestream/archivestream \
+  --set ingress.enabled=true \
+  --set ingress.hosts[0].host=archive.yourdomain.com
+```
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed deployment options.
+
+---
+
+## 🤝 Community
+
+Join our growing community:
+
+- **Discord**: [discord.gg/archivestream](https://discord.gg/archivestream) - Real-time chat and support
+- **GitHub Discussions**: [Share ideas and feedback](https://github.com/archivestream/archivestream/discussions)
+- **Twitter**: [@archivestream](https://twitter.com/archivestream) - Latest updates
+- **Blog**: [archivestream.org/blog](https://archivestream.org/blog) - Tutorials and case studies
+
+### Community Plugins
+
+Browse and contribute plugins at [archivestream/plugins](https://github.com/archivestream/plugins):
+
+- `archivestream-plugin-reddit` - Reddit thread archiving
+- `archivestream-plugin-twitter` - Twitter/X preservation  
+- `archivestream-plugin-github` - GitHub repository snapshots
+- `archivestream-plugin-ecommerce` - E-commerce price tracking
+
+See [docs/PLUGIN_DEVELOPMENT.md](docs/PLUGIN_DEVELOPMENT.md) to create your own.
+
 ---
 
 ## 📖 Usage
