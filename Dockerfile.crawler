@@ -1,5 +1,5 @@
 # Multi-stage build for ArchiveStream Crawler
-FROM rust:1.91-slim as builder
+FROM rust:1.91-slim AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY Cargo.toml Cargo.lock ./
 COPY crates ./crates
 
 # Build release binary
-RUN cargo build --release --bin crawler
+RUN cargo build --release --bin archive-crawler
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -27,10 +27,10 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy binary from builder
-COPY --from=builder /app/target/release/crawler /usr/local/bin/crawler
+COPY --from=builder /app/target/release/archive-crawler /usr/local/bin/archive-crawler
 
 # Set environment
 ENV RUST_LOG=info
 
 # Run crawler
-CMD ["crawler"]
+CMD ["archive-crawler"]
